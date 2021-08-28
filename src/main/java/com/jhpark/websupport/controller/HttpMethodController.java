@@ -16,7 +16,7 @@ import javax.xml.xpath.XPath;
  * HTTP Method 가 왜 단지 8개로만 운영이 가능한지.
  * 각 Method 의 존재 이유 & 용도 & 설계
  */
-@Controller
+@RestController
 @RequestMapping(value = "/method")
 public class HttpMethodController {
   Logger LOG = LoggerFactory.getLogger(HttpMethodController.class);
