@@ -75,11 +75,20 @@ public class HttpMethodController {
    * PUT : 리소스 갱신, 리소스 작성
    * @return
    */
-  @PutMapping(value = "/put")
-  public String put(@RequestBody SampleRequest request) {
-    return "";
+  //리소스 갱신
+  @PutMapping(value = "/put/list/item5")
+  public HttpStatus put(@RequestBody SampleRequest request) {
+    LOG.info("item5 의 정보를 Update");
+    return HttpStatus.NO_CONTENT; //바디에 아무것도 없으므로 no_content : ok로 해도 상관없다
   }
-
+  //리소스 작성
+  @PutMapping(value = "/put/newItem")
+  public HttpStatus put1(@RequestBody SampleRequest request) {
+    LOG.info("newItem 리소스 추가");
+    return HttpStatus.CREATED; // POST 의 `서브 리소스 추가`와 다르게 Location header 로 추가할 필요는 없다.
+  }
+  
+  
   /**
    * DELETE : 리소스 삭제
    * @return
