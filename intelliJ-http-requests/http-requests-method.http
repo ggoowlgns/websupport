@@ -6,3 +6,16 @@ HEAD http://localhost:8080/method/get/dgasgasg
 
 ####
 OPTIONS http://localhost:8080/method/get/dgasgasg
+
+
+###
+POST http://localhost:8080/method/post/list
+Content-Type: application/json
+
+{
+  "request": {
+  "a": "a",
+  "b": "b",
+  "c": "c"
+  }
+}

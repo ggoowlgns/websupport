@@ -1,7 +1,9 @@
 package com.jhpark.websupport.controller;
 
+import com.jhpark.websupport.request.SampleRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -47,9 +49,26 @@ public class HttpMethodController {
    * 등등.. 잡다.. (ex uri 의 최대 제한 char 은 2000자. : body 를 기반으로 데이터를 가져올때는 post가 필요하다) 
    * @return
    */
-  @PostMapping(value = "/post")
-  public String post() {
-    return "";
+  // sub resource 작성 : ex) 게시글에 글 추가
+  @PostMapping(value = "/post/list", consumes = "application/json")
+  public HttpStatus post(@RequestBody SampleRequest request, HttpServletResponse response) {
+    LOG.info("5번째 게시글 추가됨 -> item5");
+    response.setHeader("Location", "http://domain:port/list/item5"); // 생성된 리소스의 uri 를 Location 에 넣어서 반환
+    return HttpStatus.CREATED; //리소스를 새로 생성했으니 201로 반환
+  }
+
+  //리소스에 데이터 추가 : ex) 로그데이터에 추가
+  @PostMapping(value = "/post/log")
+  public HttpStatus post2(@RequestBody SampleRequest request) {
+    LOG.info("기존 LOG Data에 data 추가");
+    return HttpStatus.OK;
+  }
+
+  //다른 method 를 대응 안되는 케이스 : ex) data 를 조회하는데 query 가 너무 길떄 (get 의 uri 제한 2000자가 넘어서 body 로 query 를 날려야함) : body 는 글자 제한이 없음
+  @PostMapping(value = "/post/search", consumes = "application/x-www-form-urlencoded")
+  public String post3(@RequestBody SampleRequest request) {
+    // body : "q=very+long+keyword+foo+bar ...."
+    return "search 로 검색된 결과 ㄱㄱ";
   }
 
   /**
@@ -57,7 +76,7 @@ public class HttpMethodController {
    * @return
    */
   @PutMapping(value = "/put")
-  public String put() {
+  public String put(@RequestBody SampleRequest request) {
     return "";
   }
 
