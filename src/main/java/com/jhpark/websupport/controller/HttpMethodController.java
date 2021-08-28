@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
+ * 주의 : 본 예시에서는 공부 목적으로 만들어진 api 이므로 기본적으로 api apth의 시작을 method 의 명으로 작성했다.
+ *        실제 설계시에 method 의 명은 path 에 추가하지 말도록 하자.
+ *
  * Ch. 7 HTTP 메서드
  * HTTP Method 가 왜 단지 8개로만 운영이 가능한지.
  * 각 Method 의 존재 이유 & 용도 & 설계
@@ -82,29 +85,46 @@ public class HttpMethodController {
     return HttpStatus.NO_CONTENT; //바디에 아무것도 없으므로 no_content : ok로 해도 상관없다
   }
   //리소스 작성
-  @PutMapping(value = "/put/newItem")
-  public HttpStatus put1(@RequestBody SampleRequest request) {
-    LOG.info("newItem 리소스 추가");
-    return HttpStatus.CREATED; // POST 의 `서브 리소스 추가`와 다르게 Location header 로 추가할 필요는 없다.
+  @PutMapping(value = "/put/{newItem}", consumes = "text/plain; charset=utf-8", produces = "text/plain; charset=utf-8")
+  public HttpStatus put1(@RequestBody SampleRequest request,
+                         @PathVariable("newItem") String newItem) {
+    LOG.info("newItem 리소스 추가/갱신");
+    boolean isDataExist = true;
+    if (isDataExist) { //기존에 리소스가 존재하면
+      return HttpStatus.OK; // 리소스 갱신
+    } else {
+      return HttpStatus.CREATED; // 없으면 리소스 추가 : POST 의 `서브 리소스 추가`와 다르게 Location header 로 추가할 필요는 없다.
+    }
   }
-  
-  
+
+  /**
+   * 리소스 작성시 PUT, POST 구별
+   * 보통 POST로 한다.
+   * POST 로 리소스 추가 : uri 의 결정권이 서버에 있을때 (item 추가했는데 item5 롤 결정)
+   * PUT 로 리소스 추가 : uri 를 클라에서 결정 (newItem이라는 uri 를 client 에서 만들었다.)
+   *  - 특별 : wiki처럼 유저가 게시판 명을 작성하고 그걸 바탕으로 uri를 생성 : 이때는 중복 체크를 위해 put 을 쏘기 전에 get을 요청할 필요가 있다.
+   */
+
+
+
   /**
    * DELETE : 리소스 삭제
    * @return
    */
-  @DeleteMapping(value = "/delete")
-  public String delete() {
-    return "";
+  @DeleteMapping(value = "/delete/{itemNum}")
+  public HttpStatus delete(@PathVariable("itemNum") long itemNum) {
+    LOG.info("{}의 item 삭제", itemNum);
+    return HttpStatus.OK; //or No_CONTENT
   }
 
   /**
    * 리소스의 헤더 획득
    * @return
    */
+  //get 이랑 유사하나 header 만 가져오는 method : 네트워크 대역을 절약
   @RequestMapping(value = "/head", method = RequestMethod.HEAD)
-  public String head() {
-    return "";
+  public HttpStatus head() {
+    return HttpStatus.OK;
   }
 
   /**
@@ -112,8 +132,9 @@ public class HttpMethodController {
    * @return
    */
   @RequestMapping(value = "/options", method = RequestMethod.OPTIONS)
-  public String options() {
-    return "";
+  public HttpStatus options() {
+    LOG.info("response Header 에 Allow 가 추가되어 해당 api 에서 수신이 가능한 method 들이 들어온다."); //주의 : OPTION 자체는 Allow 헤더에 포함되지 않는다.
+    return HttpStatus.OK;
   }
 
 
