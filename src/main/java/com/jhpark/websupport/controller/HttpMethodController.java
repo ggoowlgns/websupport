@@ -22,12 +22,12 @@ public class HttpMethodController {
   Logger LOG = LoggerFactory.getLogger(HttpMethodController.class);
 
   @GetMapping(value = "/get/{value}")
-  public HttpServletResponse get(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+  public String get(HttpServletRequest request, HttpServletResponse response, HttpSession session,
                                  @PathVariable("value") String value) {
     response.setStatus(200);
     LOG.info("session : {}", session);
     makeLog(request, response);
-    return response;
+    return value;
   }
 
 
