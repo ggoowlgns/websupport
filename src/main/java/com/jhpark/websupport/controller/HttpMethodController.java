@@ -29,12 +29,13 @@ public class HttpMethodController {
    * 배경지식
    * Method 는 총 8개 but, 6개만 취급 (TRACE, CONNECT 는 거의 사용X)
    *
-   * 멱등성 : 계속 반복해서 요청해도 똑같은 상황 보장
-   * 안정성 :
+   * 멱등성 : 계속 반복해서 요청해도 똑같은 상황 보장 : for 통신 불통 - 보통 timeout 이면 재전송을 한다.
+   * 안정성 : 리소스의 상태(정보)를 변화시키지 않음
    */
 
   /**
    * GET : 리소스 취득 -
+   * 멱등성, 안정성 모두 보장
    * @param value
    * @return
    */
@@ -49,7 +50,9 @@ public class HttpMethodController {
 
   /**
    * POST : 서브 리소스 작성 (add item in list), 서브 리소스 추가,
-   * 등등.. 잡다.. (ex uri 의 최대 제한 char 은 2000자. : body 를 기반으로 데이터를 가져올때는 post가 필요하다) 
+   * 등등.. 잡다.. (ex uri 의 최대 제한 char 은 2000자. : body 를 기반으로 데이터를 가져올때는 post가 필요하다)
+   * 멱등성 보장x, 안정성 보장x : POST를 여러번 보내는 것에 대해서는 굉장히 신중해야 한다.
+   * ex) 쇼핑몰에서 뒤로 버튼을 조작할 떄 "다시 전송 하겠습니까?" 라는 문구가 나온다.
    * @return
    */
   // sub resource 작성 : ex) 게시글에 글 추가
@@ -76,6 +79,7 @@ public class HttpMethodController {
 
   /**
    * PUT : 리소스 갱신, 리소스 작성
+   * 멱등성 보장, 안정성 보장x
    * @return
    */
   //리소스 갱신
@@ -109,16 +113,24 @@ public class HttpMethodController {
 
   /**
    * DELETE : 리소스 삭제
+   * 멱등성 보장, 안정성 보장x
    * @return
    */
   @DeleteMapping(value = "/delete/{itemNum}")
   public HttpStatus delete(@PathVariable("itemNum") long itemNum) {
     LOG.info("{}의 item 삭제", itemNum);
-    return HttpStatus.OK; //or No_CONTENT
+    boolean isItemExist = false;
+    if (isItemExist) {
+      return HttpStatus.OK; //or No_CONTENT
+    } else {
+      return HttpStatus.NOT_FOUND; // for 멱등성 보장
+    }
+
   }
 
   /**
    * 리소스의 헤더 획득
+   * 멱등성 보장, 안정성 보장
    * @return
    */
   //get 이랑 유사하나 header 만 가져오는 method : 네트워크 대역을 절약
@@ -136,6 +148,21 @@ public class HttpMethodController {
     LOG.info("response Header 에 Allow 가 추가되어 해당 api 에서 수신이 가능한 method 들이 들어온다."); //주의 : OPTION 자체는 Allow 헤더에 포함되지 않는다.
     return HttpStatus.OK;
   }
+
+
+  /**
+   * POST 로 DELETE, PUT 하기
+   * request header 에
+   * X-HTTP-Method-Override : PUT
+   * 를 붙이면 PUT method 로 override 된다.
+   *
+   * 조건부 요청
+   * 이 시간 이후 갱신되어 있으면 좋겠다
+   * GET / If-Modified-Since : ~
+   * 이시간 이후로 갱신되어 있지 않으면 갱신한다.
+   * POST / If-Unmodified-Since : ~
+   */
+
 
 
   /**
