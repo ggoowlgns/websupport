@@ -1,4 +1,4 @@
-package com.jhpark.websupport.request;
+package com.jhpark.websupport.payload.request;
 
 import javax.annotation.Resource;
 
